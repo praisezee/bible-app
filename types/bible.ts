@@ -1,23 +1,10 @@
-export interface Verse {
-  number: number;
-  text: string;
-}
-
-export interface Chapter {
-  number: number;
-  verses: Verse[];
-}
-
-export interface Book {
-  name: string;
-  chapters: Chapter[];
-  testament: 'old' | 'new';
-}
-
-export interface BibleData {
-  version: string;
-  books: Book[];
-}
+// Re-export from bibleTypes for backward compatibility
+export type {
+  VerseData as Verse,
+  ChapterData as Chapter,
+  BookData as Book,
+  BibleData,
+} from './bibleTypes';
 
 export interface BookmarkItem {
   id: string;

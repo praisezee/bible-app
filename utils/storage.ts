@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  BibleData,
   BookmarkItem,
   HighlightItem,
   NoteItem,
@@ -9,6 +8,7 @@ import {
   NoteGroup,
   CustomHighlightColor,
 } from '@/types/bible';
+import { BibleData } from '@/types/bibleTypes';
 
 const STORAGE_KEYS = {
   BIBLE_DATA: 'bibleData',
@@ -35,25 +35,12 @@ export const storageUtils = {
 
   async setBibleData(data: BibleData): Promise<void> {
     try {
-      // Create a clean copy without circular references
-      const cleanData = {
-        version: data.version,
-        books: data.books.map((book) => ({
-          name: book.name,
-          testament: book.testament,
-          chapters: book.chapters.map((chapter) => ({
-            number: chapter.number,
-            verses: chapter.verses.map((verse) => ({
-              number: verse.number,
-              text: verse.text,
-            })),
-          })),
-        })),
-      };
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.BIBLE_DATA,
-        JSON.stringify(cleanData)
+      // Note: Bible data is now managed by useBibleSync hook
+      // This method is kept for backward compatibility
+      console.warn(
+        'setBibleData called - Bible data should be managed by useBibleSync'
       );
+      await AsyncStorage.setItem(STORAGE_KEYS.BIBLE_DATA, JSON.stringify(data));
     } catch (error) {
       console.error('Error setting Bible data:', error);
     }
@@ -165,7 +152,7 @@ export const storageUtils = {
             fontSize: 16,
             theme: 'system',
             lineSpacing: 1.5,
-            lastRead: { book: 'Genesis', chapter: 1, verse: 1 },
+            lastRead: { book: 'Barashyt', chapter: 1, verse: 1 },
           };
     } catch (error) {
       console.error('Error getting settings:', error);
@@ -173,7 +160,7 @@ export const storageUtils = {
         fontSize: 16,
         theme: 'system',
         lineSpacing: 1.5,
-        lastRead: { book: 'Genesis', chapter: 1, verse: 1 },
+        lastRead: { book: 'Barashyt', chapter: 1, verse: 1 },
       };
     }
   },

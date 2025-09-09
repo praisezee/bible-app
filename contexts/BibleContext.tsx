@@ -6,9 +6,6 @@ import React, {
   ReactNode,
 } from 'react';
 import {
-  BibleData,
-  Book,
-  Chapter,
   AppSettings,
   BookmarkItem,
   HighlightItem,
@@ -17,9 +14,10 @@ import {
   NoteGroup,
   CustomHighlightColor,
 } from '@/types/bible';
+import { BibleData } from '@/types/bibleTypes';
 import { storageUtils } from '@/utils/storage';
-import kjvData from '@/data/kjv-sample.json';
 import { usePathname, useRouter } from 'expo-router';
+import { useBibleSync } from '@/hooks/useBibleSync';
 
 interface BibleContextType {
   bibleData: BibleData | null;
@@ -79,17 +77,22 @@ interface BibleContextType {
   ) => Array<{ book: string; chapter: number; verse: number; text: string }>;
   highlightedVerse: { book: string; chapter: number; verse: number } | null;
   clearHighlightedVerse: () => void;
+  // Sync-related properties
+  syncStatus: any;
+  manualSync: () => Promise<void>;
 }
 
 const BibleContext = createContext<BibleContextType | undefined>(undefined);
 
 export function BibleProvider({ children }: { children: ReactNode }) {
-  const [bibleData, setBibleData] = useState<BibleData | null>(null);
+  // Use the Bible sync hook
+  const { bibleData, syncStatus, manualSync } = useBibleSync();
+
   const [settings, setSettings] = useState<AppSettings>({
     fontSize: 16,
     theme: 'system',
     lineSpacing: 1.5,
-    lastRead: { book: 'Genesis', chapter: 1, verse: 1 },
+    lastRead: { book: 'Barashyt', chapter: 1, verse: 1 },
   });
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [highlights, setHighlights] = useState<HighlightItem[]>([]);
@@ -99,10 +102,9 @@ export function BibleProvider({ children }: { children: ReactNode }) {
   const [customHighlightColors, setCustomHighlightColors] = useState<
     CustomHighlightColor[]
   >([]);
-  const [currentBook, setCurrentBook] = useState('Genesis');
+  const [currentBook, setCurrentBook] = useState('Barashyt');
   const [currentChapter, setCurrentChapter] = useState(1);
   const [currentVerse, setCurrentVerse] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
   const [highlightedVerse, setHighlightedVerse] = useState<{
     book: string;
     chapter: number;
@@ -112,21 +114,12 @@ export function BibleProvider({ children }: { children: ReactNode }) {
   const navigate = useRouter();
 
   useEffect(() => {
-    initializeApp();
+    initializeUserData();
   }, []);
 
-  const initializeApp = async () => {
+  const initializeUserData = async () => {
     try {
-      // Load Bible data
-      let storedBibleData = await storageUtils.getBibleData();
-      if (!storedBibleData) {
-        // First time - load from bundled JSON
-        storedBibleData = kjvData as BibleData;
-        await storageUtils.setBibleData(storedBibleData);
-      }
-      setBibleData(storedBibleData);
-
-      // Load settings
+      // Load user settings and data (not Bible data - that's handled by useBibleSync)
       const storedSettings = await storageUtils.getSettings();
       setSettings(storedSettings);
       setCurrentBook(storedSettings.lastRead.book);
@@ -157,9 +150,7 @@ export function BibleProvider({ children }: { children: ReactNode }) {
       setNoteGroups(storedNoteGroups);
       setCustomHighlightColors(storedCustomColors);
     } catch (error) {
-      console.error('Error initializing app:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error initializing user data:', error);
     }
   };
 
@@ -454,7 +445,7 @@ export function BibleProvider({ children }: { children: ReactNode }) {
         currentBook,
         currentChapter,
         currentVerse,
-        isLoading,
+        isLoading: syncStatus.isLoading,
         updateSettings,
         navigateToVerse,
         addBookmark,
@@ -475,6 +466,9 @@ export function BibleProvider({ children }: { children: ReactNode }) {
         searchVerses,
         highlightedVerse,
         clearHighlightedVerse,
+        // Sync-related
+        syncStatus,
+        manualSync,
       }}
     >
       {children}

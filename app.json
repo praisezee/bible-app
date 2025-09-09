@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Yahuah Dabar",
-    "slug": "SYD",
+    "slug": "bible",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,13 +10,24 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "dev.apus.bible"
+      "bundleIdentifier": "dev.apus.bible",
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#ffffff"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#FFFFFF"
       },
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": ["ACCESS_NETWORK_STATE", "ACCESS_WIFI_STATE"],
       "package": "dev.apus.bible"
     },
     "web": {
@@ -25,9 +36,14 @@
       "favicon": "./assets/images/icon.png"
     },
     "splash": {
-      "image": "./assets/images/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/images/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff",
+      "mdpi": "./assets/images/splash.png",
+      "hdpi": "./assets/images/splash.png",
+      "xhdpi": "./assets/images/splash.png",
+      "xxhdpi": "./assets/images/splash.png",
+      "xxxhdpi": "./assets/images/splash.png"
     },
     "plugins": ["expo-router", "expo-font", "expo-web-browser"],
     "experiments": {

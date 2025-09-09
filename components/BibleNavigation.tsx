@@ -215,36 +215,40 @@ export default function BibleNavigation() {
           </TouchableOpacity>
         </View>
 
-        <FlatList
-          data={currentBookData?.chapters || []}
-          keyExtractor={(item) => item.number.toString()}
-          numColumns={6}
-          columnWrapperStyle={{
-            justifyContent: 'space-between',
-            marginBottom: 8,
-          }}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              className="w-12 h-12 rounded-lg items-center justify-center"
-              style={{
-                backgroundColor:
-                  item.number === currentChapter ? colors.accent : colors.card,
-              }}
-              onPress={() => handleChapterSelect(item.number)}
-            >
-              <Text
-                className="font-medium"
+        <ScrollView>
+          <FlatList
+            data={currentBookData?.chapters || []}
+            keyExtractor={(item) => item.number.toString()}
+            numColumns={6}
+            columnWrapperStyle={{
+              justifyContent: 'space-between',
+              marginBottom: 8,
+            }}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                className="w-12 h-12 rounded-lg items-center justify-center"
                 style={{
-                  color:
-                    item.number === currentChapter ? '#ffffff' : colors.text,
+                  backgroundColor:
+                    item.number === currentChapter
+                      ? colors.accent
+                      : colors.card,
                 }}
+                onPress={() => handleChapterSelect(item.number)}
               >
-                {item.number}
-              </Text>
-            </TouchableOpacity>
-          )}
-          scrollEnabled={false}
-        />
+                <Text
+                  className="font-medium"
+                  style={{
+                    color:
+                      item.number === currentChapter ? '#ffffff' : colors.text,
+                  }}
+                >
+                  {item.number}
+                </Text>
+              </TouchableOpacity>
+            )}
+            scrollEnabled={false}
+          />
+        </ScrollView>
       </ModernModal>
     </View>
   );
