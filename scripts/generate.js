@@ -691,11 +691,15 @@ async function fetchChapter(book, chapter, sacredUrl, chapterOffset = 0) {
 
 // Build JSON
 async function buildBible() {
-  const bible = { version: 'KJV + Apocrypha', books: [] };
+  const bible = { version: 'Mini Hebrew Bible', books: [] };
 
   for (const b of books) {
     console.log(`📖 Processing ${b.name} (${b.eng})`);
-    const bookData = { name: b.name, testament: b.testament, chapters: [] };
+    const bookData = {
+      name: `${b.name} (${b.eng})`,
+      testament: b.testament,
+      chapters: [],
+    };
 
     for (let ch = 1; ch <= b.chapters; ch++) {
       const verses = await fetchChapter(

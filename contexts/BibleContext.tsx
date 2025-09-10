@@ -18,9 +18,12 @@ import { BibleData } from '@/types/bibleTypes';
 import { storageUtils } from '@/utils/storage';
 import { usePathname, useRouter } from 'expo-router';
 import { useBibleSync } from '@/hooks/useBibleSync';
+import { useTranslation } from '@/hooks/useTranslation';
+import { TranslationLanguage } from '@/types/translationTypes';
 
 interface BibleContextType {
-  bibleData: BibleData | null;
+  bibleData: BibleData | null; // Original Bible data
+  currentBibleData: BibleData | null; // Current Bible data (original or translated)
   settings: AppSettings;
   bookmarks: BookmarkItem[];
   highlights: HighlightItem[];
@@ -80,6 +83,16 @@ interface BibleContextType {
   // Sync-related properties
   syncStatus: any;
   manualSync: () => Promise<void>;
+  // Translation-related properties
+  currentLanguage: TranslationLanguage;
+  availableLanguages: TranslationLanguage[];
+  supportedLanguages: TranslationLanguage[];
+  translationProgress: any;
+  isTranslationLoading: boolean;
+  translateBible: (language: TranslationLanguage) => Promise<void>;
+  deleteTranslation: (languageCode: string) => Promise<void>;
+  clearAllTranslations: () => Promise<void>;
+  setCurrentLanguage: (language: TranslationLanguage) => void;
 }
 
 const BibleContext = createContext<BibleContextType | undefined>(undefined);
@@ -88,6 +101,22 @@ export function BibleProvider({ children }: { children: ReactNode }) {
   // Use the Bible sync hook
   const { bibleData, syncStatus, manualSync } = useBibleSync();
 
+  // Use the translation hook
+  const {
+    currentLanguage,
+    translationProgress,
+    isLoading: isTranslationLoading,
+    translateBible,
+    deleteTranslation,
+    clearAllTranslations,
+    setCurrentLanguage,
+    getCurrentBible,
+    getAvailableLanguages,
+    supportedLanguages,
+  } = useTranslation(bibleData);
+
+  // Get current Bible data (original or translated)
+  const currentBibleData = getCurrentBible();
   const [settings, setSettings] = useState<AppSettings>({
     fontSize: 16,
     theme: 'system',
@@ -374,7 +403,7 @@ export function BibleProvider({ children }: { children: ReactNode }) {
   };
 
   const searchVerses = (query: string) => {
-    if (!bibleData || !query.trim()) return [];
+    if (!currentBibleData || !query.trim()) return [];
 
     const results: Array<{
       book: string;
@@ -388,7 +417,7 @@ export function BibleProvider({ children }: { children: ReactNode }) {
     const referenceMatch = searchTerm.match(/(\w+)\s*(\d+):(\d+)/);
     if (referenceMatch) {
       const [, bookName, chapterNum, verseNum] = referenceMatch;
-      const book = bibleData.books.find((b) =>
+      const book = currentBibleData.books.find((b) =>
         b.name.toLowerCase().includes(bookName.toLowerCase())
       );
       if (book) {
@@ -413,7 +442,7 @@ export function BibleProvider({ children }: { children: ReactNode }) {
     }
 
     // Text search
-    bibleData.books.forEach((book) => {
+    currentBibleData.books.forEach((book) => {
       book.chapters.forEach((chapter) => {
         chapter.verses.forEach((verse) => {
           if (verse.text.toLowerCase().includes(searchTerm)) {
@@ -435,6 +464,7 @@ export function BibleProvider({ children }: { children: ReactNode }) {
     <BibleContext.Provider
       value={{
         bibleData,
+        currentBibleData,
         settings,
         bookmarks,
         highlights,
@@ -469,6 +499,16 @@ export function BibleProvider({ children }: { children: ReactNode }) {
         // Sync-related
         syncStatus,
         manualSync,
+        // Translation-related
+        currentLanguage,
+        availableLanguages: getAvailableLanguages(),
+        supportedLanguages,
+        translationProgress,
+        isTranslationLoading,
+        translateBible,
+        deleteTranslation,
+        clearAllTranslations,
+        setCurrentLanguage,
       }}
     >
       {children}

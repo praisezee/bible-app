@@ -11,18 +11,31 @@ import {
   Trash2,
   Info,
   Smartphone,
-  Palette,
-  RefreshCw,
   Wifi,
   WifiOff,
 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ThemeColorPicker from '@/components/ThemeColorPicker';
+import TranslationModal from '@/components/TranslationModal';
 
 export default function SettingsScreen() {
-  const { settings, updateSettings, syncStatus, manualSync } = useBible();
+  const {
+    settings,
+    updateSettings,
+    syncStatus,
+    manualSync,
+    currentLanguage,
+    availableLanguages,
+    supportedLanguages,
+    translationProgress,
+    translateBible,
+    deleteTranslation,
+    clearAllTranslations,
+    setCurrentLanguage,
+  } = useBible();
   const { colors, effectiveTheme } = useTheme(settings);
   const [showCustomThemeModal, setShowCustomThemeModal] = useState(false);
+  const [showTranslationModal, setShowTranslationModal] = useState(false);
 
   const handleClearData = () => {
     Alert.alert(
@@ -75,7 +88,6 @@ export default function SettingsScreen() {
     { label: 'Relaxed', value: 1.8 },
     { label: 'Loose', value: 2.0 },
   ];
-
   return (
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
       {/* Header */}
@@ -386,6 +398,19 @@ export default function SettingsScreen() {
         onSave={saveCustomTheme}
         colors={colors}
         settings={settings}
+      />
+      <TranslationModal
+        visible={showTranslationModal}
+        onClose={() => setShowTranslationModal(false)}
+        settings={settings}
+        supportedLanguages={supportedLanguages}
+        availableLanguages={availableLanguages}
+        currentLanguage={currentLanguage}
+        translationProgress={translationProgress}
+        onTranslate={translateBible}
+        onDelete={deleteTranslation}
+        onLanguageChange={setCurrentLanguage}
+        onClearAll={clearAllTranslations}
       />
     </View>
   );

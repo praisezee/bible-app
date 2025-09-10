@@ -2,27 +2,43 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useBible } from '@/contexts/BibleContext';
 import { useTheme } from '@/hooks/useTheme';
-import { ChevronDown, X } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChevronDown, X, Globe } from 'lucide-react-native';
 import ModernModal from './ModernModal';
+import LanguageSelector from './LanguageSelector';
+import TranslationModal from './TranslationModal';
 import { ScrollView } from 'react-native';
 
 export default function BibleNavigation() {
-  const { bibleData, currentBook, currentChapter, navigateToVerse, settings } =
-    useBible();
+  const {
+    currentBibleData,
+    currentBook,
+    currentChapter,
+    navigateToVerse,
+    settings,
+    currentLanguage,
+    availableLanguages,
+    supportedLanguages,
+    translationProgress,
+    translateBible,
+    deleteTranslation,
+    clearAllTranslations,
+    setCurrentLanguage,
+    bibleData,
+  } = useBible();
   const { colors } = useTheme(settings);
   const [showBookPicker, setShowBookPicker] = useState(false);
   const [showChapterPicker, setShowChapterPicker] = useState(false);
+  const [showTranslationModal, setShowTranslationModal] = useState(false);
 
-  if (!bibleData) return null;
+  if (!currentBibleData) return null;
 
-  const currentBookData = bibleData.books.find(
+  const currentBookData = currentBibleData.books.find(
     (book) => book.name === currentBook
   );
-  const oldTestamentBooks = bibleData.books.filter(
+  const oldTestamentBooks = currentBibleData.books.filter(
     (book) => book.testament === 'old'
   );
-  const newTestamentBooks = bibleData.books.filter(
+  const newTestamentBooks = currentBibleData.books.filter(
     (book) => book.testament === 'new'
   );
 
@@ -46,11 +62,11 @@ export default function BibleNavigation() {
       if (currentChapter < currentBookData.chapters.length) {
         newChapter = currentChapter + 1;
       } else {
-        const currentBookIndex = bibleData.books.findIndex(
+        const currentBookIndex = currentBibleData.books.findIndex(
           (book) => book.name === currentBook
         );
-        if (currentBookIndex < bibleData.books.length - 1) {
-          newBook = bibleData.books[currentBookIndex + 1].name;
+        if (currentBookIndex < currentBibleData.books.length - 1) {
+          newBook = currentBibleData.books[currentBookIndex + 1].name;
           newChapter = 1;
         }
       }
@@ -58,11 +74,11 @@ export default function BibleNavigation() {
       if (currentChapter > 1) {
         newChapter = currentChapter - 1;
       } else {
-        const currentBookIndex = bibleData.books.findIndex(
+        const currentBookIndex = currentBibleData.books.findIndex(
           (book) => book.name === currentBook
         );
         if (currentBookIndex > 0) {
-          const prevBook = bibleData.books[currentBookIndex - 1];
+          const prevBook = currentBibleData.books[currentBookIndex - 1];
           newBook = prevBook.name;
           newChapter = prevBook.chapters.length;
         }
@@ -121,16 +137,23 @@ export default function BibleNavigation() {
         className="flex-row items-center justify-between p-4 border-b"
         style={{ borderBottomColor: colors.border }}
       >
-        <TouchableOpacity
-          onPress={() => setShowBookPicker(true)}
-          className="flex flex-row items-center gap-2"
-        >
-          <Text className="text-xl font-bold" style={{ color: colors.text }}>
-            {currentBook}
-          </Text>
+        <View className="flex-row items-center flex-1">
+          <TouchableOpacity
+            onPress={() => setShowBookPicker(true)}
+            className="flex flex-row items-center gap-2 flex-1"
+          >
+            <Text className="text-xl font-bold" style={{ color: colors.text }}>
+              {currentBook}
+            </Text>
+            <ChevronDown size={20} color={colors.text} />
+          </TouchableOpacity>
 
-          <ChevronDown size={20} color={colors.text} />
-        </TouchableOpacity>
+          <LanguageSelector
+            currentLanguage={currentLanguage}
+            onPress={() => setShowTranslationModal(true)}
+            settings={settings}
+          />
+        </View>
 
         <View className="flex-row">
           <TouchableOpacity
@@ -138,13 +161,14 @@ export default function BibleNavigation() {
             style={{
               backgroundColor: colors.card,
               opacity:
-                currentChapter === 1 && currentBook === bibleData.books[0].name
+                currentChapter === 1 && currentBook === bibleData!.books[0].name
                   ? 0.5
                   : 1,
             }}
             onPress={() => navigateChapter('prev')}
             disabled={
-              currentChapter === 1 && currentBook === bibleData.books[0].name
+              currentChapter === 1 &&
+              currentBook === currentBibleData.books[0].name
             }
           >
             <Text className="font-bold " style={{ color: colors.text }}>
@@ -250,6 +274,21 @@ export default function BibleNavigation() {
           />
         </ScrollView>
       </ModernModal>
+
+      {/* Translation Modal */}
+      <TranslationModal
+        visible={showTranslationModal}
+        onClose={() => setShowTranslationModal(false)}
+        settings={settings}
+        supportedLanguages={supportedLanguages}
+        availableLanguages={availableLanguages}
+        currentLanguage={currentLanguage}
+        translationProgress={translationProgress}
+        onTranslate={translateBible}
+        onDelete={deleteTranslation}
+        onLanguageChange={setCurrentLanguage}
+        onClearAll={clearAllTranslations}
+      />
     </View>
   );
 }
