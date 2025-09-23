@@ -2,13 +2,8 @@ import { Tabs } from 'expo-router';
 import { useBible } from '@/contexts/BibleContext';
 import { useTheme } from '@/hooks/useTheme';
 import React from 'react';
-import {
-  Book,
-  Search,
-  Bookmark,
-  FileText,
-  Settings,
-} from 'lucide-react-native';
+import { Search, Bookmark, FileText, Settings } from 'lucide-react-native';
+import Icon from '@/assets/images/icon.svg';
 
 export default function TabLayout() {
   const { settings } = useBible();
@@ -39,7 +34,9 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Read',
-          tabBarIcon: ({ size, color }) => <Book size={size} color={color} />,
+          tabBarIcon: ({ size, color, focused }) => (
+            <Icon width={size} height={size} fill={focused ? color : 'gray'} />
+          ),
         }}
       />
       <Tabs.Screen

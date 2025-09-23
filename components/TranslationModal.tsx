@@ -154,7 +154,7 @@ export default function TranslationModal({
       visible={visible}
       onClose={onClose}
       settings={settings}
-      size="large"
+      size="fullscreen"
     >
       <View className="flex-row justify-between items-center mb-6">
         <Text className="text-xl font-bold" style={{ color: colors.text }}>
@@ -244,18 +244,20 @@ export default function TranslationModal({
       </View>
 
       {/* Language List */}
-      <View className="flex-1 max-h-80">
+      <View className="flex-1 border border-red-500">
         {activeTab === 'available' ? (
           <>
             {availableLanguages.length > 0 ? (
-              <FlatList
-                data={availableLanguages}
-                keyExtractor={(item) => item.code}
-                renderItem={renderAvailableLanguage}
-                showsVerticalScrollIndicator={false}
-              />
+              <View>
+                <FlatList
+                  data={availableLanguages}
+                  keyExtractor={(item) => item.code}
+                  renderItem={renderAvailableLanguage}
+                  showsVerticalScrollIndicator={false}
+                />
+              </View>
             ) : (
-              <View className="items-center py-8">
+              <View className="items-center py-8 h-full">
                 <Globe size={48} color={colors.text + '40'} />
                 <Text
                   className="mt-4 text-center"
@@ -278,19 +280,21 @@ export default function TranslationModal({
               (lang) =>
                 !availableLanguages.some((avail) => avail.code === lang.code)
             ).length > 0 ? (
-              <FlatList
-                data={supportedLanguages.filter(
-                  (lang) =>
-                    !availableLanguages.some(
-                      (avail) => avail.code === lang.code
-                    )
-                )}
-                keyExtractor={(item) => item.code}
-                renderItem={renderDownloadLanguage}
-                showsVerticalScrollIndicator={false}
-              />
+              <View>
+                <FlatList
+                  data={supportedLanguages.filter(
+                    (lang) =>
+                      !availableLanguages.some(
+                        (avail) => avail.code === lang.code
+                      )
+                  )}
+                  keyExtractor={(item) => item.code}
+                  renderItem={renderDownloadLanguage}
+                  showsVerticalScrollIndicator={false}
+                />
+              </View>
             ) : (
-              <View className="items-center py-8">
+              <View className="items-center h-full py-8">
                 <Check size={48} color={colors.accent} />
                 <Text
                   className="mt-4 text-center"

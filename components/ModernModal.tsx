@@ -62,7 +62,7 @@ export default function ModernModal({
       case 'large':
         return 'w-96 max-h-[32rem]';
       case 'fullscreen':
-        return 'flex-1 mx-4 my-20';
+        return 'flex-1 mx-4 my-20 w-full';
       default:
         return 'w-80 max-h-96';
     }
